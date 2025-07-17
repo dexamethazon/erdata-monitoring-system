@@ -1,0 +1,81 @@
+{
+  "name": "Basic System Monitoring",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "value": 5
+            }
+          ]
+        }
+      },
+      "id": "94323145-4cf3-4008-bb8c-7e2b2c9b0b1a",
+      "name": "Schedule Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "command": "echo 'System monitoring check at' $(date)"
+      },
+      "id": "8a723145-4cf3-4008-bb8c-7e2b2c9b0b2b",
+      "name": "System Check",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        440,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "log",
+        "message": "{{ $json.stdout }}"
+      },
+      "id": "9a823145-4cf3-4008-bb8c-7e2b2c9b0b3c",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        640,
+        340
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "System Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "System Check": {
+      "main": [
+        [
+          {
+            "node": "Log Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "createdAt": "2024-07-17T02:00:00.000Z",
+  "updatedAt": "2024-07-17T02:00:00.000Z",
+  "id": "basic-system-monitoring"
+}

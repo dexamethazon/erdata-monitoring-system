@@ -1,0 +1,69 @@
+# Git files
+.git
+.gitignore
+
+# Documentation (we copy specific docs in Dockerfile)
+README.md
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files (use .env.example instead)
+.env
+.env.local
+.env.production
+
+# Build outputs
+dist/
+build/
+out/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Logs
+logs/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files (avoid recursion)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Deployment scripts
+deploy.sh
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output
+
+# Backup files
+*.bak
+*.backup
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.cert

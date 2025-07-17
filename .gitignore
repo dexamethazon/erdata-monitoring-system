@@ -97,3 +97,6 @@ config/production.json
 # Backup files
 *.bak
 *.backup
+
+# Docker files
+docker-compose.override.yml
