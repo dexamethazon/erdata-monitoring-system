@@ -43,12 +43,13 @@ erdata-monitoring-system/
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn
-- n8n installed globally or via Docker
-- SSH access to target systems (for SSH-based monitoring)
-- Cloud provider credentials (for cloud resource monitoring)
+- Docker and Docker Compose
+- Git
+- (Optional) Node.js 18+ and npm/yarn for local development
 
-### Quick Start
+### Docker Deployment (Recommended)
+
+The fastest way to get the ER Data Monitoring System running is using Docker:
 
 1. **Clone the repository**
    ```bash
@@ -56,7 +57,44 @@ erdata-monitoring-system/
    cd erdata-monitoring-system
    ```
 
-2. **Install n8n** (if not already installed)
+2. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env file with your configuration
+   nano .env
+   ```
+
+3. **Deploy using the automated script**
+   ```bash
+   # Development deployment
+   ./deploy.sh
+
+   # Production deployment with database and cache
+   ./deploy.sh -e production
+   ```
+
+4. **Manual Docker deployment**
+   ```bash
+   # Basic deployment
+   docker-compose up -d
+
+   # With database and cache (recommended for production)
+   docker-compose --profile database --profile cache up -d
+
+   # Development mode with live reload
+   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+   ```
+
+5. **Access the system**
+   - Open your browser to `http://localhost:5678`
+   - Default credentials: `admin/admin` (change in .env file)
+   - Import workflows from the `n8n-workflows/` directory
+
+### Local Development Setup
+
+For local development without Docker:
+
+1. **Install n8n** (if not already installed)
    ```bash
    # Via npm
    npm install -g n8n
@@ -65,21 +103,17 @@ erdata-monitoring-system/
    docker run -it --rm --name n8n -p 5678:5678 n8nio/n8n
    ```
 
-3. **Set up environment variables**
+2. **Set up environment variables**
    ```bash
    export N8N_HOST=localhost
    export N8N_PORT=5678
    export N8N_PROTOCOL=http
    ```
 
-4. **Start n8n**
+3. **Start n8n**
    ```bash
    n8n start
    ```
-
-5. **Access the n8n interface**
-   - Open your browser to `http://localhost:5678`
-   - Import workflows from the `n8n-workflows/` directory
 
 ### Configuration
 
@@ -116,7 +150,41 @@ erdata-monitoring-system/
 
 ## 🔧 Configuration
 
-### Environment Variables
+### Docker Environment Variables
+
+The system uses environment variables for configuration. Copy `.env.example` to `.env` and customize:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `N8N_HOST` | n8n instance hostname | `0.0.0.0` |
+| `N8N_PORT` | n8n service port | `5678` |
+| `N8N_PROTOCOL` | HTTP/HTTPS protocol | `http` |
+| `N8N_BASIC_AUTH_USER` | Basic auth username | `admin` |
+| `N8N_BASIC_AUTH_PASSWORD` | Basic auth password | `admin` |
+| `WEBHOOK_URL` | Base URL for webhook endpoints | `http://localhost:5678/webhook` |
+| `DB_TYPE` | Database type (optional) | `postgresdb` |
+| `GENERIC_TIMEZONE` | System timezone | `UTC` |
+
+### Docker Deployment Options
+
+#### Basic Deployment
+```bash
+docker-compose up -d
+```
+
+#### Production Deployment with Database
+```bash
+docker-compose --profile database --profile cache up -d
+```
+
+#### Development Mode
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+### Legacy Environment Variables
+
+For direct n8n installations without Docker:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
@@ -158,6 +226,46 @@ erdata-monitoring-system/
 - **Escalation Policies**: Automatic escalation for unacknowledged alerts
 - **Alert Correlation**: Reduce noise through intelligent alert grouping
 - **Custom Templates**: Flexible alert message formatting
+
+## 🐳 Docker Management
+
+### Useful Docker Commands
+
+```bash
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (WARNING: data loss)
+docker-compose down -v
+
+# Rebuild containers
+docker-compose build
+
+# Update to latest images
+docker-compose pull && docker-compose up -d
+
+# Access n8n shell
+docker-compose exec erdata-monitoring bash
+
+# View container status
+docker-compose ps
+
+# Monitor resource usage
+docker stats
+```
+
+### Docker Profiles
+
+The system supports different deployment profiles:
+
+- **default**: Just the n8n monitoring system
+- **database**: Includes PostgreSQL for data persistence
+- **cache**: Includes Redis for caching and queues
+
+Use profiles with: `docker-compose --profile database --profile cache up -d`
 
 ## 🤝 Contributing
 

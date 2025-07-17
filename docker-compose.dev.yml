@@ -1,0 +1,27 @@
+# Docker Compose override for development
+services:
+  erdata-monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - N8N_LOG_LEVEL=debug
+      - N8N_METRICS=true
+    volumes:
+      - ./n8n-workflows:/app/workflows:rw
+      - ./scripts:/app/scripts:rw
+    ports:
+      - "5678:5678"
+      - "9090:9090"  # Metrics port
+
+  postgres:
+    environment:
+      - POSTGRES_DB=n8n_dev
+    profiles:
+      - database
+      - dev
+
+  redis:
+    profiles:
+      - cache
+      - dev

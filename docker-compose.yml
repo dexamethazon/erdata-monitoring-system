@@ -1,0 +1,79 @@
+services:
+  erdata-monitoring:
+    build:
+      context: .
+      dockerfile: ${DOCKERFILE:-Dockerfile.simple}
+    container_name: erdata-monitoring-system
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/webhook}
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-admin}
+      - N8N_METRICS=${N8N_METRICS:-false}
+      - N8N_LOG_LEVEL=${N8N_LOG_LEVEL:-info}
+      - N8N_LOG_OUTPUT=${N8N_LOG_OUTPUT:-console}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}
+    volumes:
+      - erdata_workflows:/app/data
+      - erdata_logs:/app/logs
+      - ./scripts:/app/scripts:ro
+      - ./n8n-workflows:/app/workflows:ro
+    restart: unless-stopped
+    networks:
+      - erdata-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Optional: PostgreSQL database for n8n data persistence
+  postgres:
+    image: postgres:15-alpine
+    container_name: erdata-postgres
+    environment:
+      - POSTGRES_DB=${DB_NAME:-n8n}
+      - POSTGRES_USER=${DB_USER:-n8n}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-n8n}
+      - POSTGRES_NON_ROOT_USER=${DB_USER:-n8n}
+      - POSTGRES_NON_ROOT_PASSWORD=${DB_PASSWORD:-n8n}
+    volumes:
+      - erdata_postgres_data:/var/lib/postgresql/data
+    networks:
+      - erdata-network
+    restart: unless-stopped
+    profiles:
+      - database
+
+  # Optional: Redis for caching and queue management
+  redis:
+    image: redis:7-alpine
+    container_name: erdata-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - erdata_redis_data:/data
+    networks:
+      - erdata-network
+    restart: unless-stopped
+    profiles:
+      - cache
+
+volumes:
+  erdata_workflows:
+    driver: local
+  erdata_logs:
+    driver: local
+  erdata_postgres_data:
+    driver: local
+  erdata_redis_data:
+    driver: local
+
+networks:
+  erdata-network:
+    driver: bridge

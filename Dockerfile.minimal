@@ -1,0 +1,30 @@
+# Minimal Dockerfile using official n8n image
+FROM n8nio/n8n:latest
+
+# Create application directories
+USER root
+RUN mkdir -p /app/workflows /app/scripts /app/docs
+
+# Copy application files
+COPY n8n-workflows/ /app/workflows/
+COPY scripts/ /app/scripts/
+COPY docs/ /app/docs/
+
+# Create minimal startup script
+COPY docker-entrypoint-minimal.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Set proper ownership
+RUN chown -R node:node /app
+
+# Default environment variables for monitoring system
+ENV WEBHOOK_URL=http://localhost:5678/webhook
+ENV N8N_BASIC_AUTH_ACTIVE=true
+ENV N8N_BASIC_AUTH_USER=admin
+ENV N8N_BASIC_AUTH_PASSWORD=admin
+
+# Switch back to node user
+USER node
+
+# Use custom entrypoint
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
