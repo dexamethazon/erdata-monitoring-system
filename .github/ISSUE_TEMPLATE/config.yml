@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability Report
+    url: https://github.com/dexamethazon/erdata-monitoring-system/security/advisories/new
+    about: Please report security vulnerabilities here
+  - name: General Discussion
+    url: https://github.com/dexamethazon/erdata-monitoring-system/discussions
+    about: General questions and discussions about the monitoring system
