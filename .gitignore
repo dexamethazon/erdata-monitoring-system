@@ -99,5 +99,4 @@ config/production.json
 *.backup
 
 # Docker files
-.dockerignore
 docker-compose.override.yml
