@@ -1,4 +1,4 @@
-# ER Data Monitoring System
+# Erdata Monitoring System
 
 A comprehensive hybrid infrastructure monitoring solution that combines n8n workflow automation, SSH-based monitoring, and cloud API integrations to provide real-time insights and alerting across diverse infrastructure environments.
 
@@ -49,7 +49,7 @@ erdata-monitoring-system/
 
 ### Docker Deployment (Recommended)
 
-The fastest way to get the ER Data Monitoring System running is using Docker:
+The fastest way to get the Erdata Monitoring System running is using Docker:
 
 1. **Clone the repository**
    ```bash
