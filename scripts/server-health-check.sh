@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Basic server health check script for the ER Data Monitoring System
+# Basic server health check script for the Erdata Monitoring System
 # This script performs basic system health checks and outputs JSON
 
 set -e
