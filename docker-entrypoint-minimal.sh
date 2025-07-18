@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Initializing ER Data Monitoring System..."
+echo "Initializing Erdata Monitoring System..."
 
 # Initialize application data if needed
 if [ ! -f "/home/node/.n8n/.initialized" ]; then
