@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build and deployment script for the ER Data Monitoring System
+# Build and deployment script for the Erdata Monitoring System
 
 set -e
 
@@ -35,7 +35,7 @@ show_help() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Build and deploy the ER Data Monitoring System using Docker.
+Build and deploy the Erdata Monitoring System using Docker.
 
 OPTIONS:
     -e, --environment    Environment to deploy (development, production) [default: development]
@@ -202,7 +202,7 @@ if [[ $? -eq 0 ]]; then
     
     print_status ""
     print_status "==================================="
-    print_status "ER Data Monitoring System is ready!"
+    print_status "Erdata Monitoring System is ready!"
     print_status "==================================="
     print_status "Access the system at: http://localhost:$N8N_PORT"
     print_status "Default credentials: admin/admin (change in .env file)"
