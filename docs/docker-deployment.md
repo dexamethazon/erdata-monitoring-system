@@ -1,6 +1,6 @@
 # Docker Deployment Guide
 
-This guide covers deploying the ER Data Monitoring System using Docker and Docker Compose.
+This guide covers deploying the Erdata Monitoring System using Docker and Docker Compose.
 
 ## Quick Start
 
