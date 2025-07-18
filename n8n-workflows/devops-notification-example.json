@@ -1,0 +1,794 @@
+{
+  "meta": {
+    "description": "DevOps Multi-Channel Notification Workflow",
+    "documentation": [
+      "=================================================================",
+      "                    DEVOPS NOTIFICATION WORKFLOW",
+      "=================================================================",
+      "",
+      "OVERVIEW:",
+      "This workflow is designed for DevOps teams to send automated notifications",
+      "across multiple communication channels for common DevOps scenarios including:",
+      "- Deployment alerts (success/failure)",
+      "- Server health checks and alerts", 
+      "- CI/CD pipeline notifications",
+      "- Infrastructure monitoring alerts",
+      "- Application performance alerts",
+      "",
+      "SUPPORTED CHANNELS:",
+      "✅ Slack - Rich message blocks with deployment status",
+      "✅ Discord - Embedded messages with color-coded alerts",
+      "✅ Telegram - Markdown formatted messages with emojis",
+      "✅ Google Chat - Card-based messages with structured data",
+      "",
+      "SETUP INSTRUCTIONS:",
+      "1. Import this workflow into your n8n instance",
+      "2. Configure webhook URLs and tokens in the 'DevOps Channel Config' node:",
+      "",
+      "   🔗 SLACK_WEBHOOK_URL:",
+      "   - Go to https://api.slack.com/messaging/webhooks",
+      "   - Create a new webhook for your channel",
+      "   - Copy the webhook URL (format: https://hooks.slack.com/services/...)",
+      "",
+      "   🔗 DISCORD_WEBHOOK_URL:",
+      "   - In Discord: Server Settings > Integrations > Create Webhook",
+      "   - Copy the webhook URL (format: https://discord.com/api/webhooks/...)",
+      "",
+      "   🔗 TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:",
+      "   - Create bot with @BotFather on Telegram",
+      "   - Get bot token from @BotFather",
+      "   - Add bot to your channel/group and get chat ID",
+      "   - For channels, chat ID will be negative (e.g., -1001234567890)",
+      "",
+      "   🔗 GOOGLE_CHAT_WEBHOOK_URL:",
+      "   - Google Chat API > Configure webhooks",
+      "   - Copy webhook URL (format: https://chat.googleapis.com/v1/spaces/.../messages?...)",
+      "",
+      "3. Customize DevOps variables in the 'Set DevOps Variables' node:",
+      "   - SERVICE_NAME: Name of the service being monitored",
+      "   - ENVIRONMENT: Environment (dev/staging/prod)",
+      "   - ALERT_TYPE: Type of alert (deployment/health/performance/security)",
+      "   - SEVERITY: Alert severity (INFO/WARNING/ERROR/CRITICAL)",
+      "   - BUILD_NUMBER: CI/CD build number or version",
+      "   - DEPLOYMENT_STATUS: Status (SUCCESS/FAILED/IN_PROGRESS)",
+      "",
+      "4. Enable/disable channels by setting true/false in the 'DevOps Channel Config' node",
+      "",
+      "5. Test the workflow by clicking 'Execute Workflow' on the Manual Trigger",
+      "",
+      "CUSTOMIZATION POINTS:",
+      "- Modify message templates in 'Format DevOps Messages' node for your team's needs",
+      "- Add custom fields for your specific monitoring tools (Grafana, Prometheus, etc.)",
+      "- Extend with additional channels by duplicating IF + HTTP Request pairs",
+      "- Integrate with your CI/CD pipeline by replacing Manual Trigger with webhook",
+      "- Add conditional logic based on severity levels for escalation",
+      "",
+      "DEVOPS USE CASE EXAMPLES:",
+      "- Deployment Success: 'App v1.2.3 deployed to production successfully'",
+      "- Deployment Failure: 'Deployment failed - rollback initiated'",
+      "- Server Alert: 'High CPU usage detected on web-server-01 (85%)'",
+      "- CI/CD Alert: 'Build #245 failed - unit tests failing'",
+      "- Security Alert: 'Suspicious login attempt detected'",
+      "",
+      "INTEGRATION TIPS:",
+      "- Use webhook triggers to integrate with CI/CD pipelines",
+      "- Connect to monitoring tools via HTTP requests or APIs",
+      "- Set up schedule triggers for regular health checks",
+      "- Use environment variables for sensitive configuration",
+      "",
+      "================================================================="
+    ]
+  },
+  "name": "DevOps Multi-Channel Notifications",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-devops-001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 400],
+      "notes": "Replace with webhook trigger for CI/CD integration"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "SLACK_WEBHOOK_URL",
+              "value": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
+            },
+            {
+              "name": "DISCORD_WEBHOOK_URL", 
+              "value": "https://discord.com/api/webhooks/YOUR/DISCORD/WEBHOOK"
+            },
+            {
+              "name": "TELEGRAM_BOT_TOKEN",
+              "value": "YOUR_TELEGRAM_BOT_TOKEN"
+            },
+            {
+              "name": "TELEGRAM_CHAT_ID",
+              "value": "YOUR_TELEGRAM_CHAT_ID"
+            },
+            {
+              "name": "GOOGLE_CHAT_WEBHOOK_URL",
+              "value": "https://chat.googleapis.com/v1/spaces/YOUR/GOOGLE/CHAT/WEBHOOK"
+            }
+          ],
+          "boolean": [
+            {
+              "name": "ENABLE_SLACK",
+              "value": true
+            },
+            {
+              "name": "ENABLE_DISCORD",
+              "value": true
+            },
+            {
+              "name": "ENABLE_TELEGRAM",
+              "value": true
+            },
+            {
+              "name": "ENABLE_GOOGLE_CHAT",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "devops-channel-config-001",
+      "name": "DevOps Channel Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [460, 400],
+      "notes": "Configure webhook URLs and enable/disable channels"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "SERVICE_NAME",
+              "value": "user-authentication-api"
+            },
+            {
+              "name": "ENVIRONMENT",
+              "value": "production"
+            },
+            {
+              "name": "ALERT_TYPE",
+              "value": "deployment"
+            },
+            {
+              "name": "SEVERITY",
+              "value": "INFO"
+            },
+            {
+              "name": "BUILD_NUMBER",
+              "value": "v1.2.3-build-245"
+            },
+            {
+              "name": "DEPLOYMENT_STATUS",
+              "value": "SUCCESS"
+            },
+            {
+              "name": "TIMESTAMP",
+              "value": "{{ DateTime.now().toISO() }}"
+            },
+            {
+              "name": "TRIGGERED_BY",
+              "value": "jenkins-ci"
+            },
+            {
+              "name": "COMMIT_HASH",
+              "value": "a1b2c3d4"
+            },
+            {
+              "name": "DEPLOYMENT_DURATION",
+              "value": "3m 42s"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-devops-variables-001",
+      "name": "Set DevOps Variables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [680, 400],
+      "notes": "Customize these variables for your DevOps scenarios"
+    },
+    {
+      "parameters": {
+        "values": {
+          "object": [
+            {
+              "name": "slack_devops_message",
+              "value": {
+                "text": "🚀 DevOps Alert: {{ $('Set DevOps Variables').item.json.ALERT_TYPE | upper }} {{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS }}",
+                "blocks": [
+                  {
+                    "type": "header",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "{{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'SUCCESS' ? '✅' : $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'FAILED' ? '❌' : '⏳' }} {{ $('Set DevOps Variables').item.json.ALERT_TYPE | title }} Alert"
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "fields": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Service:*\\n{{ $('Set DevOps Variables').item.json.SERVICE_NAME }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Environment:*\\n{{ $('Set DevOps Variables').item.json.ENVIRONMENT | upper }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Version:*\\n{{ $('Set DevOps Variables').item.json.BUILD_NUMBER }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Duration:*\\n{{ $('Set DevOps Variables').item.json.DEPLOYMENT_DURATION }}"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*Status:* {{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS }}\\n*Triggered by:* {{ $('Set DevOps Variables').item.json.TRIGGERED_BY }}\\n*Commit:* `{{ $('Set DevOps Variables').item.json.COMMIT_HASH }}`"
+                    }
+                  },
+                  {
+                    "type": "context",
+                    "elements": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "Severity: `{{ $('Set DevOps Variables').item.json.SEVERITY }}` | {{ $('Set DevOps Variables').item.json.TIMESTAMP }}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discord_devops_message",
+              "value": {
+                "content": "🚀 **DevOps Alert** - {{ $('Set DevOps Variables').item.json.ALERT_TYPE | title }} {{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS }}",
+                "embeds": [
+                  {
+                    "title": "{{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'SUCCESS' ? '✅ Deployment Successful' : $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'FAILED' ? '❌ Deployment Failed' : '⏳ Deployment In Progress' }}",
+                    "description": "{{ $('Set DevOps Variables').item.json.SERVICE_NAME }} deployment update",
+                    "color": "{{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'SUCCESS' ? 65280 : $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'FAILED' ? 16711680 : 16776960 }}",
+                    "fields": [
+                      {
+                        "name": "🏷️ Service",
+                        "value": "{{ $('Set DevOps Variables').item.json.SERVICE_NAME }}",
+                        "inline": true
+                      },
+                      {
+                        "name": "🌍 Environment",
+                        "value": "{{ $('Set DevOps Variables').item.json.ENVIRONMENT | upper }}",
+                        "inline": true
+                      },
+                      {
+                        "name": "📦 Version",
+                        "value": "{{ $('Set DevOps Variables').item.json.BUILD_NUMBER }}",
+                        "inline": true
+                      },
+                      {
+                        "name": "⏱️ Duration",
+                        "value": "{{ $('Set DevOps Variables').item.json.DEPLOYMENT_DURATION }}",
+                        "inline": true
+                      },
+                      {
+                        "name": "👤 Triggered by",
+                        "value": "{{ $('Set DevOps Variables').item.json.TRIGGERED_BY }}",
+                        "inline": true
+                      },
+                      {
+                        "name": "🔗 Commit",
+                        "value": "`{{ $('Set DevOps Variables').item.json.COMMIT_HASH }}`",
+                        "inline": true
+                      }
+                    ],
+                    "footer": {
+                      "text": "Severity: {{ $('Set DevOps Variables').item.json.SEVERITY }} | ErData Monitoring"
+                    },
+                    "timestamp": "{{ $('Set DevOps Variables').item.json.TIMESTAMP }}"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "telegram_devops_message",
+              "value": {
+                "chat_id": "{{ $('DevOps Channel Config').item.json.TELEGRAM_CHAT_ID }}",
+                "text": "🚀 *DevOps Alert*\\n\\n{{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'SUCCESS' ? '✅' : $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'FAILED' ? '❌' : '⏳' }} *{{ $('Set DevOps Variables').item.json.ALERT_TYPE | title }} {{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS }}*\\n\\n🏷️ *Service:* {{ $('Set DevOps Variables').item.json.SERVICE_NAME }}\\n🌍 *Environment:* {{ $('Set DevOps Variables').item.json.ENVIRONMENT | upper }}\\n📦 *Version:* {{ $('Set DevOps Variables').item.json.BUILD_NUMBER }}\\n⏱️ *Duration:* {{ $('Set DevOps Variables').item.json.DEPLOYMENT_DURATION }}\\n👤 *Triggered by:* {{ $('Set DevOps Variables').item.json.TRIGGERED_BY }}\\n🔗 *Commit:* `{{ $('Set DevOps Variables').item.json.COMMIT_HASH }}`\\n\\n⚠️ *Severity:* {{ $('Set DevOps Variables').item.json.SEVERITY }}\\n🕐 *Time:* {{ $('Set DevOps Variables').item.json.TIMESTAMP }}",
+                "parse_mode": "Markdown"
+              }
+            },
+            {
+              "name": "google_chat_devops_message",
+              "value": {
+                "text": "🚀 DevOps Alert: {{ $('Set DevOps Variables').item.json.ALERT_TYPE | title }} {{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS }}",
+                "cards": [
+                  {
+                    "header": {
+                      "title": "{{ $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'SUCCESS' ? '✅ Deployment Successful' : $('Set DevOps Variables').item.json.DEPLOYMENT_STATUS === 'FAILED' ? '❌ Deployment Failed' : '⏳ Deployment In Progress' }}",
+                      "subtitle": "{{ $('Set DevOps Variables').item.json.SERVICE_NAME }} - {{ $('Set DevOps Variables').item.json.ENVIRONMENT | upper }}",
+                      "imageUrl": "https://developers.google.com/chat/images/quickstart-app-avatar.png"
+                    },
+                    "sections": [
+                      {
+                        "header": "Deployment Details",
+                        "widgets": [
+                          {
+                            "keyValue": {
+                              "topLabel": "Service Name",
+                              "content": "{{ $('Set DevOps Variables').item.json.SERVICE_NAME }}",
+                              "icon": "DESCRIPTION"
+                            }
+                          },
+                          {
+                            "keyValue": {
+                              "topLabel": "Environment",
+                              "content": "{{ $('Set DevOps Variables').item.json.ENVIRONMENT | upper }}",
+                              "icon": "BOOKMARK"
+                            }
+                          },
+                          {
+                            "keyValue": {
+                              "topLabel": "Version",
+                              "content": "{{ $('Set DevOps Variables').item.json.BUILD_NUMBER }}",
+                              "icon": "STAR"
+                            }
+                          },
+                          {
+                            "keyValue": {
+                              "topLabel": "Duration",
+                              "content": "{{ $('Set DevOps Variables').item.json.DEPLOYMENT_DURATION }}",
+                              "icon": "CLOCK"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "header": "Technical Information",
+                        "widgets": [
+                          {
+                            "keyValue": {
+                              "topLabel": "Triggered By",
+                              "content": "{{ $('Set DevOps Variables').item.json.TRIGGERED_BY }}",
+                              "icon": "PERSON"
+                            }
+                          },
+                          {
+                            "keyValue": {
+                              "topLabel": "Commit Hash",
+                              "content": "{{ $('Set DevOps Variables').item.json.COMMIT_HASH }}",
+                              "icon": "MULTIPLE_PEOPLE"
+                            }
+                          },
+                          {
+                            "keyValue": {
+                              "topLabel": "Severity",
+                              "content": "{{ $('Set DevOps Variables').item.json.SEVERITY }}",
+                              "icon": "{{ $('Set DevOps Variables').item.json.SEVERITY === 'CRITICAL' ? 'FIRE' : $('Set DevOps Variables').item.json.SEVERITY === 'ERROR' ? 'ERROR' : 'INFO' }}"
+                            }
+                          },
+                          {
+                            "keyValue": {
+                              "topLabel": "Timestamp",
+                              "content": "{{ $('Set DevOps Variables').item.json.TIMESTAMP }}",
+                              "icon": "EVENT_SEAT"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-devops-messages-001",
+      "name": "Format DevOps Messages",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [900, 400],
+      "notes": "DevOps-specific message formatting for each platform"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "{{ $('DevOps Channel Config').item.json.ENABLE_SLACK }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-slack-enabled-devops-001",
+      "name": "IF Slack Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "{{ $('DevOps Channel Config').item.json.ENABLE_DISCORD }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-discord-enabled-devops-001",
+      "name": "IF Discord Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "{{ $('DevOps Channel Config').item.json.ENABLE_TELEGRAM }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-telegram-enabled-devops-001",
+      "name": "IF Telegram Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 480]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "{{ $('DevOps Channel Config').item.json.ENABLE_GOOGLE_CHAT }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-google-chat-enabled-devops-001",
+      "name": "IF Google Chat Enabled",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('DevOps Channel Config').item.json.SLACK_WEBHOOK_URL }}",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": []
+        },
+        "jsonBodyParametersUi": {
+          "parameter": []
+        },
+        "body": "={{ JSON.stringify($('Format DevOps Messages').item.json.slack_devops_message) }}",
+        "headers": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "send-slack-devops-notification-001",
+      "name": "Send Slack DevOps Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('DevOps Channel Config').item.json.DISCORD_WEBHOOK_URL }}",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": []
+        },
+        "jsonBodyParametersUi": {
+          "parameter": []
+        },
+        "body": "={{ JSON.stringify($('Format DevOps Messages').item.json.discord_devops_message) }}",
+        "headers": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "send-discord-devops-notification-001",
+      "name": "Send Discord DevOps Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{ $('DevOps Channel Config').item.json.TELEGRAM_BOT_TOKEN }}/sendMessage",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": []
+        },
+        "jsonBodyParametersUi": {
+          "parameter": []
+        },
+        "body": "={{ JSON.stringify($('Format DevOps Messages').item.json.telegram_devops_message) }}",
+        "headers": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "send-telegram-devops-notification-001",
+      "name": "Send Telegram DevOps Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('DevOps Channel Config').item.json.GOOGLE_CHAT_WEBHOOK_URL }}",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": []
+        },
+        "jsonBodyParametersUi": {
+          "parameter": []
+        },
+        "body": "={{ JSON.stringify($('Format DevOps Messages').item.json.google_chat_devops_message) }}",
+        "headers": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "id": "send-google-chat-devops-notification-001",
+      "name": "Send Google Chat DevOps Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 600]
+    },
+    {
+      "parameters": {},
+      "id": "devops-workflow-complete-001",
+      "name": "DevOps Notifications Complete",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1680, 420],
+      "notes": "All DevOps notifications sent successfully"
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "DevOps Channel Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DevOps Channel Config": {
+      "main": [
+        [
+          {
+            "node": "Set DevOps Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set DevOps Variables": {
+      "main": [
+        [
+          {
+            "node": "Format DevOps Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format DevOps Messages": {
+      "main": [
+        [
+          {
+            "node": "IF Slack Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Discord Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Telegram Enabled",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF Google Chat Enabled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Slack Enabled": {
+      "main": [
+        [
+          {
+            "node": "Send Slack DevOps Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Discord Enabled": {
+      "main": [
+        [
+          {
+            "node": "Send Discord DevOps Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Telegram Enabled": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram DevOps Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Google Chat Enabled": {
+      "main": [
+        [
+          {
+            "node": "Send Google Chat DevOps Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack DevOps Notification": {
+      "main": [
+        [
+          {
+            "node": "DevOps Notifications Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Discord DevOps Notification": {
+      "main": [
+        [
+          {
+            "node": "DevOps Notifications Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram DevOps Notification": {
+      "main": [
+        [
+          {
+            "node": "DevOps Notifications Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Google Chat DevOps Notification": {
+      "main": [
+        [
+          {
+            "node": "DevOps Notifications Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "createdAt": "2024-07-18T06:00:00.000Z",
+  "updatedAt": "2024-07-18T06:00:00.000Z",
+  "id": "devops-notification-example"
+}
